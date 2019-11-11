@@ -1,0 +1,12 @@
+{
+  "mongodb": {
+    "username": "",
+    "password": "",
+    "host": "",
+    "db": ""
+  },
+
+  "EmailAlerts": [
+    "jgibbons@flipweb.co.uk"
+  ]
+}
