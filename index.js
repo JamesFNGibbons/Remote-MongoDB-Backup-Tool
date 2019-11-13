@@ -32,7 +32,7 @@ class MongoDBBackup {
     
     // Test connection to the MongoDB server.
     const mongoConnectionString = `mongodb://${config.mongodb.username}:${config.mongodb.password}@${config.mongodb.host}:27017/${config.mongodb.db}`;     
-    mongodb.connect(mongoConnectionString, (err, db) => {
+    mongodb.connect(mongoConnectionString, {useUnifiedTopology: true}, (err, db) => {
       if(err) {
         throw err;
       }
@@ -69,8 +69,9 @@ class MongoDBBackup {
      * Define the schedule event for the DB to be backed up
      * 
     */
-    adgenda.define('nightly backup', (job, done) => {
-      console.log('--> Attempting backup @ ' + new Date().toDateTimeString());
+    const Agenda = new agenda();
+    Agenda.define('nightly backup', (job, done) => {
+      console.log('--> Attempting backup @ ' + new Date().toString());
       this.createBackup();
 
       // Set to repeat every night at 12AM
@@ -84,11 +85,21 @@ class MongoDBBackup {
      * Start the event scheduler, using the Adjenda.js
      * libary. 
     */
-    agenda.start();
-    angena.on('ready', () => {
+    Agenda.start();
+    Agenda.on('ready', () => {
       console.log('--> Event Schedule started. Ready to execute @ 00:00 Daily');
-      agenda.schedule('everyday at 00:00','first');
+      Agenda.schedule('everyday at 00:00','first');
     });
+	
+   /** 
+    * Create the inital datbase backup on the first 
+    * start. This should give us a instant rollback,
+    * and should identify any errors that could cause
+    * the tool to crash later on at 12:00 AM when it
+    * will be run.
+   */
+   console.log('--> Creating inital database backup.');
+   this.createBackup();
   }
 
   /** 
@@ -124,7 +135,7 @@ class MongoDBBackup {
            * Send an email to the alertable users with the dump
            * error attached to the message.
           */
-          transporter.sendMail({
+          this.mailTransporter.sendMail({
             // from: '"MongoDB Backup Service" <noreply@mongobackup.local>', // sender address
             to: config.alertEmails.toString(), // list of receivers
             subject: 'MongoDB Backup Failure On RemoteServer', // Subject line
@@ -133,7 +144,7 @@ class MongoDBBackup {
                 <p><b>Dear Sys Admin</b></p>
                 <p>MoongoDB backup failed on the remote server. Please find attached the log details for the event: </p>
                 
-                <p><b><u>Time of event</u></b> ${new Date().toDateTimeString()}</p>
+                <p><b><u>Time of event</u></b> ${new Date().toString()}</p>
                 <p>${stderr}</p>
               ` // html body
           });
@@ -154,7 +165,7 @@ class MongoDBBackup {
               <p><b>Dear Sys Admin</b></p>
               <p>MoongoDB backup has been completed on the remote server. Please find event details below: </p>
               
-              <p><b><u>Time of event</u></b> ${new Date().toDateTimeString()}</p>
+              <p><b><u>Time of event</u></b> ${new Date().toString()}</p>
               <p>${stdout}</p>
             `
         });

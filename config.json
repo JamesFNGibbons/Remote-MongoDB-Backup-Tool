@@ -2,11 +2,11 @@
   "mongodb": {
     "username": "",
     "password": "",
-    "host": "",
-    "db": ""
+    "host": "localhost",
+    "db": "flip"
   },
 
-  "EmailAlerts": [
+  "alertEmails": [
     "jgibbons@flipweb.co.uk"
   ]
 }
