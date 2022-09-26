@@ -11,6 +11,6 @@
   "dependencies": {
     "agenda": "^2.1.0",
     "mongodb": "^3.3.3",
-    "nodemailer": "^6.4.16"
+    "nodemailer": "^6.6.1"
   }
 }
